@@ -1,8 +1,8 @@
-# Cortex Code Skills (Compartibles con Clientes)
+# Cortex Code Skills
 
-Una colección curada y **compartible con clientes** de skills de [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code).
+Una colección curada de skills de [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code).
 
-Son skills genéricos, técnicos y de utilidad que **no contienen datos internos, datos de clientes ni contenido propietario de go-to-market**. Son seguros para compartir públicamente y reutilizar entre proyectos.
+Son skills genéricos, técnicos y de utilidad, listos para compartir públicamente y reutilizar entre proyectos.
 
 > ⚠️ **IMPORTANTE — LEER ANTES DE USAR.** Este contenido se proporciona **"TAL CUAL" (AS IS), SIN GARANTÍA DE NINGÚN TIPO** y **NO es un producto oficial de Snowflake** (no está respaldado ni soportado por Snowflake Inc.). Los autores **no asumen responsabilidad alguna** por daños derivados de su uso. **Eres el único responsable de revisar, probar y validar cualquier skill antes de usarlo**, así como de los costos de cómputo/servicios que genere. Al usar cualquier elemento de este repositorio aceptas íntegramente los términos de **[DISCLAIMER.md](./DISCLAIMER.md)** y de la **[LICENCIA Apache 2.0](./LICENSE)**.
 
