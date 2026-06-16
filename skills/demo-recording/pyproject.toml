@@ -1,0 +1,17 @@
+[project]
+name = "demo-recording"
+version = "0.3.0"
+description = "Generate demo recording assets: talk track, timed recording script, and AI voice-over audio with optional voice cloning"
+requires-python = ">=3.11"
+dependencies = [
+    "edge-tts>=6.1.0",
+    "sounddevice>=0.5.0",
+    "soundfile>=0.13.0",
+]
+
+[project.optional-dependencies]
+clone-qwen = ["qwen3-tts", "soundfile", "torch"]
+clone-coqui = ["TTS", "soundfile", "torch"]
+clone-chatterbox = ["chatterbox-tts", "torchaudio", "torch"]
+clone-openvoice = ["openvoice", "soundfile", "torch"]
+spcs = ["snowflake-connector-python"]

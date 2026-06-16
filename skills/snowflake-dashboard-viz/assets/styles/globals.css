@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   ACH Benchmarking — premium dark fintech theme (dark-only).
+   ===================================================================== */
+
+@layer base {
+  :root {
+    --brand-primary: #2e6bff;
+    --brand-primary-foreground: #ffffff;
+
+    /* shadcn/ui semantic tokens mapped to the dark palette */
+    --background: #0a0e1a;
+    --foreground: #eaf0ff;
+    --card: #121a2e;
+    --card-foreground: #eaf0ff;
+    --popover: #0f1626;
+    --popover-foreground: #eaf0ff;
+    --primary: #2e6bff;
+    --primary-foreground: #ffffff;
+    --secondary: #16203a;
+    --secondary-foreground: #eaf0ff;
+    --muted: #16203a;
+    --muted-foreground: #8fa0c2;
+    --accent: #16203a;
+    --accent-foreground: #eaf0ff;
+    --destructive: #ff5670;
+    --destructive-foreground: #ffffff;
+    --border: #23304d;
+    --input: #23304d;
+    --ring: #2e6bff;
+    --radius: 0.85rem;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+    /* subtle ambient gradient + grid */
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(46, 107, 255, 0.16), transparent 60%),
+      radial-gradient(900px 500px at 0% 0%, rgba(34, 211, 238, 0.10), transparent 55%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+}
+
+/* ---- Reusable UI primitives ---- */
+@layer components {
+  .panel {
+    background: linear-gradient(180deg, rgba(18, 26, 46, 0.9), rgba(15, 22, 38, 0.9));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 18px 40px -24px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+  }
+  .panel-hover { transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
+  .panel-hover:hover { transform: translateY(-2px); border-color: #2e6bff66; }
+  .chip {
+    display: inline-flex; align-items: center; gap: .375rem;
+    padding: .2rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 600;
+    border: 1px solid var(--border); color: var(--muted-foreground);
+    background: rgba(255,255,255,.02);
+  }
+  .text-gradient {
+    background: linear-gradient(90deg, #eaf0ff, #7bb0ff 55%, #22d3ee);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+}
+
+/* ---- Animations ---- */
+@keyframes ach-pulse {
+  0% { transform: scale(0.6); opacity: 0.85; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes ach-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+@keyframes ach-dash {
+  to { stroke-dashoffset: 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #16203a 25%, #1e2b4a 37%, #16203a 63%);
+  background-size: 800px 100%;
+  animation: ach-shimmer 1.4s infinite linear;
+  border-radius: 8px;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #23304d; border-radius: 999px; border: 2px solid #0a0e1a; }
+::-webkit-scrollbar-thumb:hover { background: #2e6bff66; }
+
+/* SVG/chart helpers */
+.tick text { fill: var(--muted-foreground); font-size: 11px; }
+.tick line { stroke: #1a2540; }
+.domain { stroke: #23304d; }
