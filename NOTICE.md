@@ -9,6 +9,11 @@ FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING
 FROM, OUT OF, OR IN CONNECTION WITH THE CONTENT OR ITS USE.
 
-These skills are not an official Snowflake product and are not supported by
-Snowflake. They contain no confidential, internal, or customer-specific
-information. Use at your own risk and review before applying in any environment.
+These skills are not an official Snowflake product and are not endorsed or
+supported by Snowflake Inc. They contain no confidential, internal, or
+customer-specific information. Use at your own risk and review before applying
+in any environment.
+
+Licensed under the Apache License, Version 2.0. See LICENSE for the full terms,
+including the Disclaimer of Warranty (Section 7) and Limitation of Liability
+(Section 8). See DISCLAIMER.md for the full plain-language disclaimer (ES/EN).

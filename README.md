@@ -4,6 +4,8 @@ A curated, **client-shareable** collection of [Cortex Code](https://docs.snowfla
 
 These are generic, technical/utility skills that contain **no internal data, no customer data, and no proprietary go-to-market content**. They are safe to share publicly and reuse across projects.
 
+> ⚠️ **IMPORTANT — READ BEFORE USE.** This content is provided **"AS IS", WITHOUT WARRANTY OF ANY KIND** and is **NOT an official Snowflake product** (not endorsed or supported by Snowflake Inc.). The authors accept **no liability** for any damages arising from its use. **You are solely responsible for reviewing, testing, and validating any skill before use**, and for any compute/service costs it incurs. By using anything in this repository you accept the full terms in **[DISCLAIMER.md](./DISCLAIMER.md)** and the **[Apache 2.0 LICENSE](./LICENSE)**.
+
 ## What is a skill?
 
 A skill is a reusable capability for Cortex Code — a folder with a `SKILL.md` (instructions + trigger keywords) and optional supporting assets (templates, scripts, components). When a request matches a skill's domain, Cortex Code loads it to apply specialized workflows.
@@ -37,4 +39,8 @@ Or copy individual skill folders as needed. Restart Cortex Code so it picks up t
 
 ## License & disclaimer
 
-See [NOTICE.md](./NOTICE.md). Provided as-is, without warranty.
+- **License:** [Apache License 2.0](./LICENSE) — includes a Disclaimer of Warranty (§7) and Limitation of Liability (§8).
+- **Full disclaimer (ES/EN):** [DISCLAIMER.md](./DISCLAIMER.md) — no warranty, not an official Snowflake product, user assumes all risk, indemnification.
+- **Attribution notice:** [NOTICE.md](./NOTICE.md).
+
+Provided **AS IS**, without warranty of any kind. Not an official Snowflake product. Use at your own risk — review and test before applying in any environment.
