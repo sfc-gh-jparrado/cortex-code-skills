@@ -1,45 +1,45 @@
-# Cortex Code Skills (Client-Shareable)
+# Cortex Code Skills (Compartibles con Clientes)
 
-A curated, **client-shareable** collection of [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code) skills.
+Una colección curada y **compartible con clientes** de skills de [Cortex Code](https://docs.snowflake.com/en/user-guide/cortex-code/cortex-code).
 
-These are generic, technical/utility skills that contain **no internal data, no customer data, and no proprietary go-to-market content**. They are safe to share publicly and reuse across projects.
+Son skills genéricos, técnicos y de utilidad que **no contienen datos internos, datos de clientes ni contenido propietario de go-to-market**. Son seguros para compartir públicamente y reutilizar entre proyectos.
 
-> ⚠️ **IMPORTANT — READ BEFORE USE.** This content is provided **"AS IS", WITHOUT WARRANTY OF ANY KIND** and is **NOT an official Snowflake product** (not endorsed or supported by Snowflake Inc.). The authors accept **no liability** for any damages arising from its use. **You are solely responsible for reviewing, testing, and validating any skill before use**, and for any compute/service costs it incurs. By using anything in this repository you accept the full terms in **[DISCLAIMER.md](./DISCLAIMER.md)** and the **[Apache 2.0 LICENSE](./LICENSE)**.
+> ⚠️ **IMPORTANTE — LEER ANTES DE USAR.** Este contenido se proporciona **"TAL CUAL" (AS IS), SIN GARANTÍA DE NINGÚN TIPO** y **NO es un producto oficial de Snowflake** (no está respaldado ni soportado por Snowflake Inc.). Los autores **no asumen responsabilidad alguna** por daños derivados de su uso. **Eres el único responsable de revisar, probar y validar cualquier skill antes de usarlo**, así como de los costos de cómputo/servicios que genere. Al usar cualquier elemento de este repositorio aceptas íntegramente los términos de **[DISCLAIMER.md](./DISCLAIMER.md)** y de la **[LICENCIA Apache 2.0](./LICENSE)**.
 
-## What is a skill?
+## ¿Qué es un skill?
 
-A skill is a reusable capability for Cortex Code — a folder with a `SKILL.md` (instructions + trigger keywords) and optional supporting assets (templates, scripts, components). When a request matches a skill's domain, Cortex Code loads it to apply specialized workflows.
+Un skill es una capacidad reutilizable para Cortex Code: una carpeta con un `SKILL.md` (instrucciones + palabras clave de activación) y, opcionalmente, recursos de apoyo (plantillas, scripts, componentes). Cuando una solicitud coincide con el dominio de un skill, Cortex Code lo carga para aplicar flujos de trabajo especializados.
 
-## Skills included
+## Skills incluidos
 
-| Skill | Description |
+| Skill | Descripción |
 |---|---|
-| `snowflake-dashboard-viz` | Reusable D3 + React chart library and dark "fintech" design system for dashboards and data apps. |
-| `reference-architecture-diagram` | Generate reference architecture diagrams as draw.io XML files. |
-| `guardian` | Analyze code for quality issues, vulnerabilities, and best practices (Python, JS/TS, React, SQL, YAML). |
-| `html-to-pdf` | Convert HTML documents to clean, presentation-ready PDFs. |
-| `html-to-pptx` | Convert HTML documents into PowerPoint (.pptx) presentations. |
-| `kaniko-spcs` | Build Docker container images inside Snowpark Container Services (SPCS) using Kaniko. |
-| `demo-recording` | Generate demo recording assets: talk track, timed script, and AI voice-over. |
-| `aws-mcp` | Set up and use the AWS Labs MCP servers from Cortex Code. |
-| `cf-explain-pipeline-skill` | Explain how a column/field in a dynamic table or view is calculated by tracing its lineage. |
-| `openflow-oracle-s3-snowflake` | Build OpenFlow pipelines: extract from Oracle, write to S3 as Avro, load to Snowflake Iceberg. |
+| `snowflake-dashboard-viz` | Librería reutilizable de gráficos D3 + React y design system oscuro estilo "fintech" para dashboards y data apps. |
+| `reference-architecture-diagram` | Genera diagramas de arquitectura de referencia como archivos XML de draw.io. |
+| `guardian` | Analiza código en busca de problemas de calidad, vulnerabilidades y buenas prácticas (Python, JS/TS, React, SQL, YAML). |
+| `html-to-pdf` | Convierte documentos HTML en PDFs limpios y listos para presentar. |
+| `html-to-pptx` | Convierte documentos HTML en presentaciones de PowerPoint (.pptx). |
+| `kaniko-spcs` | Construye imágenes de contenedor Docker dentro de Snowpark Container Services (SPCS) usando Kaniko. |
+| `demo-recording` | Genera recursos para grabar demos: talk track, guion cronometrado y voz en off con IA. |
+| `aws-mcp` | Configura y usa los servidores MCP de AWS Labs desde Cortex Code. |
+| `cf-explain-pipeline-skill` | Explica cómo se calcula una columna/campo en una tabla dinámica o vista, trazando su linaje. |
+| `openflow-oracle-s3-snowflake` | Construye pipelines de OpenFlow: extrae de Oracle, escribe a S3 como Avro y carga a Snowflake Iceberg. |
 
-## Installation
+## Instalación
 
-Clone into your Cortex Code skills directory:
+Clónalo en tu directorio de skills de Cortex Code:
 
 ```bash
 git clone https://github.com/<owner>/<repo>.git
 cp -r <repo>/skills/* ~/.snowflake/cortex/skills/
 ```
 
-Or copy individual skill folders as needed. Restart Cortex Code so it picks up the new skills.
+O copia carpetas de skills individuales según necesites. Reinicia Cortex Code para que detecte los nuevos skills.
 
-## License & disclaimer
+## Licencia y aviso legal
 
-- **License:** [Apache License 2.0](./LICENSE) — includes a Disclaimer of Warranty (§7) and Limitation of Liability (§8).
-- **Full disclaimer (ES/EN):** [DISCLAIMER.md](./DISCLAIMER.md) — no warranty, not an official Snowflake product, user assumes all risk, indemnification.
-- **Attribution notice:** [NOTICE.md](./NOTICE.md).
+- **Licencia:** [Apache License 2.0](./LICENSE) — incluye la Renuncia de Garantía (§7) y la Limitación de Responsabilidad (§8). *(El texto de la licencia se conserva en inglés porque su validez legal depende del texto canónico oficial de Apache.)*
+- **Aviso legal completo (ES/EN):** [DISCLAIMER.md](./DISCLAIMER.md) — sin garantía, no es producto oficial de Snowflake, el usuario asume todo el riesgo, indemnización.
+- **Aviso de atribución:** [NOTICE.md](./NOTICE.md).
 
-Provided **AS IS**, without warranty of any kind. Not an official Snowflake product. Use at your own risk — review and test before applying in any environment.
+Se proporciona **TAL CUAL (AS IS)**, sin garantía de ningún tipo. No es un producto oficial de Snowflake. Úsalo bajo tu propio riesgo: revisa y prueba antes de aplicarlo en cualquier entorno.

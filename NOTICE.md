@@ -1,19 +1,23 @@
-# NOTICE
+# AVISO (NOTICE)
 
-This repository contains sample Cortex Code skills shared for educational and
-reference purposes.
+Este repositorio contiene skills de ejemplo para Cortex Code, compartidos con
+fines educativos y de referencia.
 
-THE CONTENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING
-FROM, OUT OF, OR IN CONNECTION WITH THE CONTENT OR ITS USE.
+EL CONTENIDO SE PROPORCIONA "TAL CUAL" (AS IS), SIN GARANTÍA DE NINGÚN TIPO,
+EXPRESA O IMPLÍCITA, INCLUYENDO —SIN LIMITARSE A— LAS GARANTÍAS DE
+COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN. EN
+NINGÚN CASO LOS AUTORES O TITULARES DE DERECHOS SERÁN RESPONSABLES DE NINGUNA
+RECLAMACIÓN, DAÑO U OTRA RESPONSABILIDAD QUE SURJA DE, A PARTIR DE, O EN
+CONEXIÓN CON EL CONTENIDO O SU USO.
 
-These skills are not an official Snowflake product and are not endorsed or
-supported by Snowflake Inc. They contain no confidential, internal, or
-customer-specific information. Use at your own risk and review before applying
-in any environment.
+Estos skills no son un producto oficial de Snowflake y no están respaldados ni
+soportados por Snowflake Inc. No contienen información confidencial, interna ni
+específica de clientes. Úsalos bajo tu propio riesgo y revísalos antes de
+aplicarlos en cualquier entorno.
 
-Licensed under the Apache License, Version 2.0. See LICENSE for the full terms,
-including the Disclaimer of Warranty (Section 7) and Limitation of Liability
-(Section 8). See DISCLAIMER.md for the full plain-language disclaimer (ES/EN).
+Licenciado bajo la Licencia Apache, Versión 2.0. Consulta el archivo LICENSE
+para los términos completos, incluyendo la Renuncia de Garantía (Sección 7) y la
+Limitación de Responsabilidad (Sección 8). Consulta DISCLAIMER.md para el aviso
+legal completo en lenguaje claro (ES/EN). El texto de la licencia Apache se
+conserva en inglés porque su validez legal depende de su versión canónica
+oficial.
