@@ -21,7 +21,6 @@ A skill is a reusable capability for Cortex Code — a folder with a `SKILL.md` 
 | `html-to-pptx` | Convert HTML documents into PowerPoint (.pptx) presentations. |
 | `kaniko-spcs` | Build Docker container images inside Snowpark Container Services (SPCS) using Kaniko. |
 | `demo-recording` | Generate demo recording assets: talk track, timed script, and AI voice-over. |
-| `ontology-stack-builder` | Design and build ontology stacks (OWL/RDF/SKOS, knowledge graphs, taxonomies) over data. |
 | `aws-mcp` | Set up and use the AWS Labs MCP servers from Cortex Code. |
 | `cf-explain-pipeline-skill` | Explain how a column/field in a dynamic table or view is calculated by tracing its lineage. |
 | `openflow-oracle-s3-snowflake` | Build OpenFlow pipelines: extract from Oracle, write to S3 as Avro, load to Snowflake Iceberg. |
