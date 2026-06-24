@@ -18,7 +18,7 @@
  *      saying: "here is the Tier 2 shape catalog".
  *
  * CoCo merges this into template-config.json as the shape_catalog, unlocking
- * font-fit, bullets, and autofit repair (full parity with the Snowflake deck skill).
+ * font-fit, bullets, and autofit repair (the full-fidelity tier).
  */
 
 // EDIT THIS: your tokenized master deck's presentation ID.

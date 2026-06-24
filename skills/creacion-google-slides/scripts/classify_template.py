@@ -17,7 +17,7 @@ Two onboarding tiers are supported, both driven by this script:
   Tier 2 (optional, one paste): the customer runs scripts/extract_catalog.gs in
     the Apps Script editor on their template and pastes back the JSON. That adds
     a shape_catalog (shape IDs, default font sizes, char limits) which unlocks
-    font-fit, bullets, and autofit repair -- full parity with snowflake-slides.
+    programmatic font-fit, bullets, and autofit repair.
 
 Modes:
 

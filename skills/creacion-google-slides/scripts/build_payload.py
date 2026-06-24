@@ -3,10 +3,10 @@
 build_payload.py -- Generic branded-slides payload builder (config-driven)
 
 Offloads ALL mechanical orchestration into deterministic Python so the LLM
-only has to think about content.  This is a template-agnostic generalization
-of the Snowflake-slides builder: instead of hardcoded slide/shape IDs, it loads
-a per-customer catalog from a template-config.json file produced once during
-onboarding (see classify_template.py).
+only has to think about content.  It is fully template-agnostic: instead of any
+hardcoded slide/shape IDs, it loads a per-customer catalog from a
+template-config.json file produced once during onboarding (see
+classify_template.py).
 
 Four modes:
 

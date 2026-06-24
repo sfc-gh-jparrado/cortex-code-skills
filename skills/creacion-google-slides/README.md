@@ -32,7 +32,7 @@ flowchart TD
 | Tier | Setup | Gets you |
 |------|-------|----------|
 | **1 (default)** | Zero manual steps. Uses only the MCP (`read_presentation` + `replaceAllText`). | Full deck generation. No programmatic font-fit/bullets. |
-| **2 (optional)** | Run `scripts/extract_catalog.gs` in Apps Script once, paste back. | Adds shape IDs -> automatic font-fit + bullets (full parity). |
+| **2 (optional)** | Run `scripts/extract_catalog.gs` in Apps Script once, paste back. | Adds shape IDs -> automatic font-fit + bullets (full-fidelity tier). |
 
 The same builder handles both: a Tier 1 catalog simply omits the shape map.
 
