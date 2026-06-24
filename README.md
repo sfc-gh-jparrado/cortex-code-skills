@@ -24,6 +24,7 @@ Un skill es una capacidad reutilizable para Cortex Code: una carpeta con un `SKI
 | `aws-mcp` | Configura y usa los servidores MCP de AWS Labs desde Cortex Code. |
 | `cf-explain-pipeline-skill` | Explica cómo se calcula una columna/campo en una tabla dinámica o vista, trazando su linaje. |
 | `openflow-oracle-s3-snowflake` | Construye pipelines de OpenFlow: extrae de Oracle, escribe a S3 como Avro y carga a Snowflake Iceberg. |
+| `creacion-google-slides` | Genera presentaciones de Google Slides con la marca de cualquier empresa: onboarda la plantilla del cliente (sin tokens, la tokeniza por contexto) y genera decks desde lenguaje natural. Funciona en CoCo y CoWork. |
 
 ## Instalación
 
