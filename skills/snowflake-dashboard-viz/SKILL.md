@@ -16,8 +16,8 @@ Building or restyling any dashboard / data app / visualization in React/Next.js 
 ## Stack
 
 - **React 18/19 + TypeScript**, `d3` (^7.9), `framer-motion`, `lucide-react`, Tailwind v4.
-- Optional (agent/markdown panels): `react-markdown`, `remark-gfm`.
-- Install: `npm i d3 framer-motion lucide-react && npm i -D @types/d3`.
+- Agent/markdown/chart panels: `react-markdown`, `remark-gfm`, `react-vega` (+ `vega`, `vega-lite`).
+- Install: `npm i d3 framer-motion lucide-react react-markdown remark-gfm react-vega vega vega-lite && npm i -D @types/d3`.
 
 ## Reuse workflow
 
@@ -60,8 +60,9 @@ All are `"use client"`, responsive via `useChartSize()`, animate in with framer-
 | `RadarBenchmark.tsx` | Multi-axis profile vs sector | `{eje, comercio, sector}[]` | polar math + `lineRadial`-style path |
 | `PercentileGauge.tsx` | Single percentile/score arc | `value:number (0-100)` | `arc`, `scaleLinear` to angle |
 | `FamilyCompareBars.tsx` | Grouped/diverging category bars | `{familia, propio, sector}[]` | `scaleBand`, `scaleLinear` |
-| `ColombiaMap.tsx` | Choropleth + pulsing beacons + click-popups | `GeoPunto[]` `{depto_key, depto, region, monto, num_tx, clientes, share}` | `geoMercator`, `geoPath`, `scaleSqrt`, `interpolateRgbBasis` |
+| `ColombiaMap.tsx` | Choropleth + pulsing beacons + click-popups | `GeoPunto[]` `{depto_key, depto, region, monto, num_tx, clientes, share}` | **manual equirectangular fit** + `geoTransform`, `geoPath`, `scaleSqrt`, `interpolateRgbBasis` |
 | `AgentChart.tsx` | Render a Cortex Agent `data_to_chart` spec (bar/line/donut), auto-detects label vs value field | `{mark, values[], x?, y?}` | `scaleBand/Linear`, `pie/arc`, `line` |
+| `agent/AgentVega.tsx` | Render any Cortex Agent `chart_spec` (vega-lite) with the dark theme, `width:"container"` so it adapts to a resizable chat | parsed `chart_spec` object | react-vega `VegaLite` |
 | `ChartFrame.tsx` | Panel wrapper (title + subtitle + right slot + body) | — | — |
 
 ### Two reusable helpers (always copy these)
@@ -120,17 +121,44 @@ export function MyChart({ data, accent = theme.primary }: Props) {
 
 ## Special: ColombiaMap (choropleth + beacons + popups)
 
-A reusable geo pattern: `fetch('/colombia-departamentos.geo.json')` (place GeoJSON in `public/`, keyed by `NOMBRE_DPT`), `d3.geoMercator().fitSize([w,h], geo)`, fill each department via a `scaleSqrt` → `interpolateRgbBasis(CHORO_RAMP)`. Top-N departments get animated `ach-pulse` beacons at `path.centroid`. **Hover** shows a tooltip; **click** pins a detail card (`pinned` state). To retarget another country, swap the GeoJSON + the property key used for the join.
+**Use a MANUAL equirectangular projection — NOT `d3.geoMercator().fitSize/fitExtent`.** This is the single most important map gotcha (see Gotchas). The bundled `ColombiaMap.tsx` is already fixed:
+
+1. **Bundle the GeoJSON as a TS module** (`assets/lib/colombia-geo.ts` → `lib/colombia-geo.ts`) and `import { COLOMBIA_GEO }` — no runtime `fetch`, no file in `public/`, no third-party code execution. A ready-made Colombia (33 departments, `NOMBRE_DPT`, ~116KB) ships in the assets.
+2. **Compute lon/lat bounds** directly from the coordinates, then project linearly: `project(lon,lat) = [ox + (lon-minLon)*s, oy + (maxLat-lat)*s]` with `s = min((W-2pad)/spanLon, (H-2pad)/spanLat)`. Feed it to `d3.geoPath` via `d3.geoTransform({ point(lon,lat){ this.stream.point(...project(lon,lat)) } })`.
+3. Fill each department via `scaleSqrt` → `interpolateRgbBasis(CHORO_RAMP)`; top-N get animated `ach-pulse` beacons at `path.centroid`. **Hover** shows a tooltip; **click** pins a detail card.
+
+**Activity-bubble variant** (the ACH PSE map): skip the choropleth fill, draw faint department outlines, and place circles with `cx/cy = project(d.lon, d.lat)` sized by a `scaleSqrt` of volume. Same projection, different marks.
+
+**Retarget another country:** regenerate the bundled GeoJSON (mapshaper command in Gotchas) and change the `NOMBRE_DPT` join key. The linear fit is exact for near-equator countries; for high-latitude countries swap in a real projection but verify it renders (see Gotchas).
 
 ## Special: AgentChart (Cortex Agent → chart)
 
 Renders a Cortex Agent `data_to_chart` `chart_spec`. Robustness trick: it **ignores the spec's x/y orientation** and instead picks the **string field as the category label and the numeric field as the value**, so horizontal/vertical bar specs both render correctly. Supports `bar`, `line`, `arc/pie`. Pair it with a markdown answer panel (`react-markdown` + `remark-gfm`) for an agentic insights tab.
 
+## Floating agent chat (Cortex Agent) — assets/agent/
+
+A floating "Ask the agent" button + chat panel that talks to a **created Cortex Agent object**. The panel is **draggable, resizable (top-left handle, grows up/left), and minimizable** (double-click header or the Minus/Maximize2 button); the body flexes so content adapts to the window size. It renders **markdown** answers (`react-markdown`+`remark-gfm`), **charts** via `AgentVega` (`width:"container"`, adapts to panel size), and **always 3 follow-up question chips** to guide analysis. Files in `assets/agent/`:
+
+- `AgentChat.tsx` → `components/AgentChat.tsx` — FAB + resizable/minimizable panel. Accepts BOTH route shapes: `{text, charts[], suggestions[]}` (DATA_AGENT_RUN, preferred) and `{text, chartSpec, citations, tables}` (REST). Props: `title`, `fabLabel`, `defaultAgent`, `suggestions`, `primary`, `primarySoft`. Mount once in `app/page.tsx`.
+- `AgentVega.tsx` → `components/AgentVega.tsx` — dark-themed `react-vega` renderer with a mount guard; `width:"container"` so charts resize with the panel.
+- `api-agent-route-data-agent-run.ts.txt` → `app/api/agent/route.ts` — **VALIDATED default.** Runs `SNOWFLAKE.CORTEX.DATA_AGENT_RUN('<db.schema.agent>', $$<body>$$, TRUE)` via `querySnowflakeLongRunning`, parses `content[]` into `{text, charts, suggestions}`, **sends only the latest user message** (single-turn — see Gotchas), and **guarantees 3 suggestions** (native `suggested_queries` first, then domain fallbacks). Edit the `AGENT` constant.
+- `api-agent-route.ts.txt` → `app/api/agent/route.ts` — *alternative* Agent REST API route (`…/agents/{name}:run`, `stream:false`) returning `{text, citations, chartSpec, tables}`. Use when you want the streaming-style REST endpoint, citations, or multi-agent selection via `/api/agents` (`api-agents-route.ts.txt`, `SHOW AGENTS`).
+
+Auth (SPCS): both routes need `lib/snowflake.ts`. The DATA_AGENT_RUN route uses `querySnowflakeLongRunning`; the REST route reads the service OAuth token (`getServiceToken()`) + account host (`getAccountHost()` → `SNOWFLAKE_HOST`) and sends `Authorization: Bearer <token>` + `X-Snowflake-Authorization-Token-Type: OAUTH`. The agent object must exist (`CREATE AGENT … FROM SPECIFICATION` with `cortex_analyst_text_to_sql` / `cortex_search` / `data_to_chart` tools).
+
 ## Output
 
 A set of copied, themed chart components + design tokens wired to the target app's data — a cohesive, animated dark dashboard. Verify by running the app and checking each tile renders with data, tooltips, and the panel styling.
 
-## Notes / gotchas
+## Gotchas (hard-won — bake these in)
+
+- **Map renders as one solid square → use a manual projection.** `d3.geoMercator().fitSize/fitExtent(extent, featureCollection)` on a **mapshaper-simplified** GeoJSON makes EVERY polygon span the full extent (overlapping fills = one solid block), even though per-feature lon/lat bounds are correct. d3's spherical bounds are winding-sensitive and fail here; regenerating with RFC7946 winding does **not** fix it. Fix = the manual equirectangular fit in `ColombiaMap.tsx` (linear, winding-agnostic, exact near the equator). Always eyeball the first render; if you see a filled rectangle, it's this.
+- **Regenerate the bundled GeoJSON** with: `npx -y mapshaper@latest <input>.geojson -simplify 6% keep-shapes -filter-fields NOMBRE_DPT -o format=geojson rfc7946 precision=0.01`, then wrap it as `export const COLOMBIA_GEO = {…} as unknown as FeatureCollection`. The "intersections could not be repaired" warning is harmless for display.
+- **Cortex Agent `DATA_AGENT_RUN` is SINGLE-TURN.** Sending conversation history returns `{"error_code":"399504","message":"Exactly one 'user' message is required"}` → empty `content[]` → the UI shows a fast fallback and EVERY follow-up fails (the first question works, so it's easy to miss). Fix = send only the latest user message (the route template already does). The agent is stateless, so nothing is lost. (The REST `:run` route does accept history.)
+- **Dollar-quoting:** Snowflake supports only `$$…$$` (no tagged `$tag$`); sanitize any `$$` in user text to `$ $` before embedding the JSON body.
+- **Always return 3 suggestions** from the agent route (native `suggested_queries` first, then domain fallbacks) and render them as chips — guides the user and keeps the panel useful even when the model omits them.
+
+## Notes
 - **Render only when `width > 0`** (first paint has width 0 before `ResizeObserver` fires) or paths compute as empty.
 - **`useMemo` the D3 scene** on `[data, width]` so scales/paths don't recompute every render.
 - **Locale**: `format.ts` is es-CO (`.` thousands, `,` decimals, COP). Swap `Intl.NumberFormat` locale/currency for other markets.

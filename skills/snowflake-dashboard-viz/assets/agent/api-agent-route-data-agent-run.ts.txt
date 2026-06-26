@@ -1,0 +1,114 @@
+// TEMPLATE — copy to app/api/agent/route.ts
+// VALIDATED Cortex Agent route using SNOWFLAKE.CORTEX.DATA_AGENT_RUN (SQL), as built
+// for the ACH PSE demo. Use this when you call a created AGENT object from a Snowflake
+// App and want formatted markdown + a chart + 3 guided follow-up questions.
+//
+// Requires lib/snowflake.ts to export querySnowflakeLongRunning(sql, opts) -> rows[].
+// EDIT the AGENT constant (fully-qualified DB.SCHEMA.AGENT) for your account.
+//
+// Why this shape (two hard-won gotchas baked in):
+//  1. SINGLE-TURN: DATA_AGENT_RUN for a created agent rejects history with
+//     {"error_code":"399504","message":"Exactly one 'user' message is required"}.
+//     Sending prior turns makes content[] empty -> the UI shows a fast fallback and
+//     EVERY follow-up fails. Fix: send ONLY the latest user message. The agent is
+//     stateless, so no capability is lost.
+//  2. DOLLAR-QUOTING: Snowflake supports only `$$` (no tagged `$tag$`). We wrap the
+//     JSON body in `$$...$$` and sanitize any `$$` in user text to `$ $`.
+
+import { querySnowflakeLongRunning } from "@/lib/snowflake"
+
+export const dynamic = "force-dynamic"
+export const maxDuration = 180
+
+const AGENT = "MY_DB.MY_SCHEMA.MY_AGENT"
+
+type InMsg = { role: "user" | "assistant"; text: string }
+
+function buildRequestBody(messages: InMsg[]): string {
+  return JSON.stringify({
+    messages: messages.map((m) => ({ role: m.role, content: [{ type: "text", text: m.text }] })),
+  })
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
+    const messages: InMsg[] = Array.isArray(body?.messages)
+      ? body.messages
+      : body?.message
+        ? [{ role: "user", text: String(body.message) }]
+        : []
+
+    // Single-turn: pick ONLY the latest user message; ignore history (see gotcha 1).
+    let lastUserText = ""
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]
+      if (m?.role === "user" && (m.text ?? "").toString().trim()) {
+        lastUserText = m.text.toString().trim()
+        break
+      }
+    }
+    if (!lastUserText) return Response.json({ error: "Falta el mensaje" }, { status: 400 })
+
+    const reqBody = buildRequestBody([{ role: "user", text: lastUserText }]).split("$$").join("$ $")
+    const sql = `SELECT SNOWFLAKE.CORTEX.DATA_AGENT_RUN('${AGENT}', $$${reqBody}$$, TRUE) AS RESP`
+
+    const rows = await querySnowflakeLongRunning(sql, {
+      pollIntervalMs: 1500,
+      statusLogIntervalMs: 15000,
+      maxWaitMs: 170000,
+    })
+    const raw = rows[0]?.RESP
+    const resp = typeof raw === "string" ? JSON.parse(raw) : raw
+    const content: any[] = resp?.content ?? []
+
+    let text = ""
+    const charts: any[] = []
+    let suggestions: string[] = []
+
+    for (const c of content) {
+      if (c.type === "text" && c.text) text += (text ? "\n\n" : "") + c.text
+      else if (c.type === "chart" && c.chart?.chart_spec) {
+        try { charts.push(JSON.parse(c.chart.chart_spec)) } catch { /* ignore */ }
+      } else if (c.type === "suggested_queries") {
+        const sq = c.suggested_queries ?? []
+        suggestions = sq.map((s: any) => s.query).filter(Boolean)
+      }
+    }
+
+    // Don't double-render: strip any inline "Preguntas sugeridas" block from the text
+    // since we render the suggestions as chips below the answer.
+    if (suggestions.length > 0) {
+      text = text.replace(/\n+#{0,6}\s*Preguntas sugeridas:?[\s\S]*$/i, "").trim()
+    }
+
+    // Always guarantee 3 follow-up questions to guide the analysis. EDIT these
+    // fallbacks to your domain; the agent's own suggested_queries take priority.
+    const FALLBACK_SUGGESTIONS = [
+      "¿Cuáles son los 5 elementos con mayor variación?",
+      "¿Cómo ha evolucionado la métrica mes a mes?",
+      "¿Qué segmentos concentran la mayor parte del total?",
+      "¿Cuál es el promedio por categoría?",
+      "¿Qué regiones tienen los valores más altos?",
+      "¿Cuáles son las principales causas del cambio?",
+    ]
+    const seen = new Set(suggestions.map((s) => s.trim().toLowerCase()))
+    for (const f of FALLBACK_SUGGESTIONS) {
+      if (suggestions.length >= 3) break
+      if (!seen.has(f.toLowerCase())) { suggestions.push(f); seen.add(f.toLowerCase()) }
+    }
+    suggestions = suggestions.slice(0, 3)
+
+    if (!text && charts.length === 0) {
+      text = "No pude generar una respuesta para esa pregunta. Intenta reformularla."
+    }
+
+    return Response.json({ text, charts, suggestions })
+  } catch (e) {
+    console.error(new Date().toISOString(), "[agent] error", e)
+    return Response.json(
+      { error: e instanceof Error ? e.message : "Error consultando el agente" },
+      { status: 500 },
+    )
+  }
+}

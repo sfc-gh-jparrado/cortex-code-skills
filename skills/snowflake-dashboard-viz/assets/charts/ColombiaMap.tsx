@@ -1,37 +1,54 @@
 "use client"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import * as d3 from "d3"
 import { motion } from "framer-motion"
 import { useChartSize } from "./useChartSize"
 import { CHORO_RAMP, theme } from "@/lib/theme"
 import { formatCOP, formatNumber, formatPct } from "@/lib/format"
 import type { GeoPunto } from "@/lib/types"
-
-type Feature = { type: string; properties: Record<string, unknown>; geometry: unknown }
-type FeatureCollection = { type: string; features: Feature[] }
+// Bundled GeoJSON (no runtime fetch). Generate once with mapshaper and export as a
+// TS module — see SKILL.md "Special: ColombiaMap" for the exact command. The join
+// key here is NOMBRE_DPT; change it if your GeoJSON uses a different property.
+import { COLOMBIA_GEO } from "@/lib/colombia-geo"
 
 interface Props {
   data: GeoPunto[]
   accent?: string
 }
 
-/** Choropleth of Colombia by transaction volume, with animated pulsing
- *  overlays on the top departments and click-to-pin popups. */
+// Continental features only (drop the far-west San Andrés archipelago so the
+// projection frames the mainland tightly where the activity sits).
+const FEATURES: any[] = (COLOMBIA_GEO.features ?? []).filter(
+  (f: any) => !String(f?.properties?.NOMBRE_DPT ?? "").toUpperCase().includes("SAN ANDRES"),
+)
+
+// Lon/lat bounds straight from the coordinates — trusted and winding-agnostic.
+const BOUNDS = (() => {
+  let minLon = 180, minLat = 90, maxLon = -180, maxLat = -90
+  const scan = (c: any) => {
+    if (typeof c[0] === "number") {
+      minLon = Math.min(minLon, c[0]); maxLon = Math.max(maxLon, c[0])
+      minLat = Math.min(minLat, c[1]); maxLat = Math.max(maxLat, c[1])
+    } else c.forEach(scan)
+  }
+  FEATURES.forEach((f) => scan(f.geometry.coordinates))
+  return { minLon, minLat, maxLon, maxLat }
+})()
+
+/** Choropleth of Colombia by transaction volume, with animated pulsing overlays
+ *  on the top departments and click-to-pin popups.
+ *
+ *  Projection: a MANUAL equirectangular fit (not d3.geoMercator().fitSize/fitExtent).
+ *  d3's spherical bounds are winding-sensitive and silently collapse mapshaper-
+ *  simplified GeoJSON into one overlapping square (a solid fill). The linear fit
+ *  below is winding-agnostic and exact for a near-equator country. The same
+ *  `project(lon,lat)` powers both the department paths and any bubble cx/cy, so
+ *  this pattern also drives activity-bubble maps (see SKILL.md). */
 export function ColombiaMap({ data, accent = theme.primary }: Props) {
   const { ref, width } = useChartSize(460)
   const height = 460
-  const [geo, setGeo] = useState<FeatureCollection | null>(null)
   const [hover, setHover] = useState<{ x: number; y: number; key: string } | null>(null)
   const [pinned, setPinned] = useState<string | null>(null)
-
-  useEffect(() => {
-    let alive = true
-    fetch("/colombia-departamentos.geo.json")
-      .then((r) => r.json())
-      .then((g) => { if (alive) setGeo(g) })
-      .catch(() => {})
-    return () => { alive = false }
-  }, [])
 
   const byKey = useMemo(() => {
     const m = new Map<string, GeoPunto>()
@@ -47,34 +64,50 @@ export function ColombiaMap({ data, accent = theme.primary }: Props) {
   }, [maxMonto])
 
   const { paths, bubbles } = useMemo(() => {
-    if (!geo || width === 0) return { paths: [], bubbles: [] as { cx: number; cy: number; r: number; key: string; monto: number }[] }
-    const projection = d3.geoMercator().fitSize([width, height], geo as d3.GeoPermissibleObjects)
-    const path = d3.geoPath(projection)
-    const rScale = d3.scaleSqrt().domain([0, maxMonto]).range([0, Math.min(width, height) * 0.085])
-    const paths = geo.features.map((f) => {
-      const key = String(f.properties.NOMBRE_DPT ?? "")
-      const rec = byKey.get(key)
-      return { key, d: path(f as d3.GeoPermissibleObjects) ?? "", fill: colorOf(rec?.monto), monto: rec?.monto }
+    if (width === 0) return { paths: [], bubbles: [] as { cx: number; cy: number; r: number; key: string; monto: number }[] }
+    const pad = 14
+    const { minLon, minLat, maxLon, maxLat } = BOUNDS
+    const spanLon = maxLon - minLon || 1
+    const spanLat = maxLat - minLat || 1
+    const s = Math.min((width - 2 * pad) / spanLon, (height - 2 * pad) / spanLat)
+    const ox = pad + ((width - 2 * pad) - spanLon * s) / 2
+    const oy = pad + ((height - 2 * pad) - spanLat * s) / 2
+    const project = (lon: number, lat: number): [number, number] => [ox + (lon - minLon) * s, oy + (maxLat - lat) * s]
+
+    // Feed the linear projection to d3.geoPath via a geoTransform stream.
+    const transform = d3.geoTransform({
+      point(lon: number, lat: number) {
+        const [x, y] = project(lon, lat)
+        ;(this as any).stream.point(x, y)
+      },
     })
-    const bubbles = geo.features
+    const path = d3.geoPath(transform as any)
+    const rScale = d3.scaleSqrt().domain([0, maxMonto]).range([0, Math.min(width, height) * 0.085])
+
+    const paths = FEATURES.map((f) => {
+      const key = String(f.properties?.NOMBRE_DPT ?? "")
+      const rec = byKey.get(key)
+      return { key, d: path(f as any) ?? "", fill: colorOf(rec?.monto), monto: rec?.monto }
+    })
+    const bubbles = FEATURES
       .map((f) => {
-        const key = String(f.properties.NOMBRE_DPT ?? "")
+        const key = String(f.properties?.NOMBRE_DPT ?? "")
         const rec = byKey.get(key)
-        const c = path.centroid(f as d3.GeoPermissibleObjects)
+        const c = path.centroid(f as any)
         return rec ? { cx: c[0], cy: c[1], r: rScale(rec.monto), key, monto: rec.monto } : null
       })
       .filter(Boolean)
       .sort((a, b) => (b!.monto - a!.monto))
       .slice(0, 8) as { cx: number; cy: number; r: number; key: string; monto: number }[]
     return { paths, bubbles }
-  }, [geo, width, height, byKey, colorOf, maxMonto])
+  }, [width, height, byKey, colorOf, maxMonto])
 
   const activeKey = pinned ?? hover?.key ?? null
   const activeRec = activeKey ? byKey.get(activeKey) : null
 
   return (
     <div ref={ref} className="relative w-full" style={{ height }}>
-      {width > 0 && geo && (
+      {width > 0 && (
         <svg width={width} height={height} role="img" aria-label="Mapa de Colombia por volumen">
           <defs>
             <filter id="map-glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -89,6 +122,7 @@ export function ColombiaMap({ data, accent = theme.primary }: Props) {
               fill={p.fill}
               stroke={activeKey === p.key ? accent : "#0a0e1a"}
               strokeWidth={activeKey === p.key ? 1.6 : 0.6}
+              strokeLinejoin="round"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: Math.min(i * 0.012, 0.5), duration: 0.4 }}
@@ -115,8 +149,6 @@ export function ColombiaMap({ data, accent = theme.primary }: Props) {
           ))}
         </svg>
       )}
-
-      {!geo && <div className="absolute inset-0 grid place-items-center text-sm text-[var(--muted-foreground)]">Cargando mapa…</div>}
 
       {/* Legend */}
       <div className="absolute left-3 bottom-3 flex items-center gap-2 text-[10px] text-[var(--muted-foreground)]">

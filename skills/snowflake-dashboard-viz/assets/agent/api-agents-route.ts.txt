@@ -1,0 +1,22 @@
+// TEMPLATE — copy to app/api/agents/route.ts
+// Lists Cortex Agent objects in a schema via SHOW AGENTS. EDIT DB / SCHEMA.
+import { querySnowflake } from "@/lib/snowflake"
+
+export const dynamic = "force-dynamic"
+
+const DB = "MY_DB"
+const SCHEMA = "PUBLIC"
+
+export async function GET() {
+  try {
+    const rows = await querySnowflake(`SHOW AGENTS IN SCHEMA ${DB}.${SCHEMA}`)
+    const agents = rows.map((r) => {
+      let display = r.name
+      try { const p = r.profile ? JSON.parse(r.profile) : null; if (p?.display_name) display = p.display_name } catch {}
+      return { name: r.name as string, display_name: display as string }
+    })
+    return Response.json({ agents })
+  } catch (e) {
+    return Response.json({ error: e instanceof Error ? e.message : "No se pudieron listar los agentes", agents: [] }, { status: 500 })
+  }
+}
